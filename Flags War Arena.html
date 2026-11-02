@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Flags War Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #02050e;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 9:16 Vertical Smartphone Container */
+    #phone-wrapper {
+      position: relative;
+      height: 98vh;
+      width: calc(98vh * (9 / 16));
+      max-width: 100vw;
+      max-height: 100vh;
+      aspect-ratio: 9 / 16;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+      background: #04091a;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    @media (max-aspect-ratio: 9/16) {
+      #phone-wrapper {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+
+    /* Stadium Night Sky & Hero Aura Backdrop */
+    .stadium-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 28%, rgba(56, 189, 248, 0.38) 0%, transparent 45%),
+        radial-gradient(circle at 82% 28%, rgba(239, 68, 68, 0.38) 0%, transparent 45%),
+        radial-gradient(circle at 50% 20%, rgba(30, 64, 175, 0.5) 0%, rgba(4, 9, 26, 0.95) 60%),
+        linear-gradient(180deg, #040b24 0%, #071330 50%, #0b2916 68%, #155324 85%, #0c3818 100%);
+      z-index: 0;
+    }
+
+    /* Stadium Spotlights Band */
+    .stadium-lights {
+      position: absolute;
+      top: 52%;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background:
+        radial-gradient(ellipse at 12% 50%, rgba(255,255,255,0.75) 0%, transparent 50%),
+        radial-gradient(ellipse at 88% 50%, rgba(255,255,255,0.75) 0%, transparent 50%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 3px, transparent 3px, transparent 10px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Green Football Turf Floor */
+    .turf-floor {
+      position: absolute;
+      bottom: 0;
+      left: -20%;
+      right: -20%;
+      height: 43%;
+      background:
+        radial-gradient(circle at 50% 5%, rgba(74, 222, 128, 0.35), transparent 65%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(16, 85, 35, 0.94) 0px,
+          rgba(16, 85, 35, 0.94) 15px,
+          rgba(22, 108, 46, 0.94) 15px,
+          rgba(22, 108, 46, 0.94) 30px
+        );
+      transform: perspective(380px) rotateX(55deg);
+      transform-origin: bottom center;
+      box-shadow: inset 0 25px 45px rgba(0,0,0,0.85);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ================= TOP UI SECTION (EXACT SCREENSHOT LAYOUT) ================= */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      padding: 6px 12px 0 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .circle-icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(10, 18, 40, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      color: #fff;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    }
+    .circle-icon-btn:active { transform: scale(0.92); }
+
+    .title-text {
+      font-size: 18px;
+      font-weight: 900;
+      font-style: italic;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.95);
+    }
+    .title-text span {
+      color: #facc15;
+    }
+
+    .live-viewer-group {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 18, 40, 0.9);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 2px 8px 2px 2px;
+      gap: 6px;
+    }
+    .live-pill {
+      background: linear-gradient(90deg, #ff1f7a, #e11d48);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .viewer-text {
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .dot-pulse {
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.45; }
+    }
+
+    /* Row 2: Countries 64 | Remaining 49 */
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .stat-box {
+      background: rgba(8, 17, 42, 0.86);
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      border-radius: 13px;
+      padding: 3px 14px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 126px;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+    }
+    .stat-label {
+      font-size: 10.5px;
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+    .stat-num {
+      font-size: 19px;
+      color: #facc15;
+      font-weight: 900;
+      line-height: 1.05;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* Row 3: Cycle 1 • Live */
+    .cycle-pill {
+      background: rgba(10, 18, 40, 0.9);
+      border: 1.2px solid rgba(255,255,255,0.45);
+      border-radius: 999px;
+      padding: 2px 16px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+    }
+
+    /* Row 4: Where Are You From? */
+    .question-heading {
+      text-align: center;
+      line-height: 1.02;
+      margin-top: 0px;
+    }
+    .question-heading .line1 {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      font-style: italic;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.95);
+    }
+    .question-heading .line2 {
+      color: #facc15;
+      font-size: 21px;
+      font-weight: 900;
+      font-style: italic;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.95);
+    }
+    .red-swoosh {
+      width: 110px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #ef4444, transparent);
+      margin: 2px auto 0 auto;
+      border-radius: 999px;
+    }
+
+    /* ================= CENTER 3D CIRCULAR ARENA (ENLARGED TO 96%) ================= */
+    .arena-section {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #arena-box {
+      position: relative;
+      width: 96%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #arena-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .arena-live-tag {
+      position: absolute;
+      bottom: -8px;
+      background: linear-gradient(180deg, #ff2a85 0%, #c80050 100%);
+      border: 2px solid #ff9ec7;
+      color: #fff;
+      font-weight: 900;
+      font-style: italic;
+      font-size: 13px;
+      padding: 2px 18px;
+      border-radius: 10px;
+      box-shadow: 0 0 16px rgba(255, 42, 133, 0.95);
+      letter-spacing: 0.5px;
+    }
+
+    /* ================= BOTTOM UI SECTION (EXACT SCREENSHOT LAYOUT) ================= */
+    .bottom-bar {
+      position: relative;
+      z-index: 10;
+      padding: 0 12px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .elim-title {
+      color: #ffffff;
+      font-weight: 900;
+      font-style: italic;
+      font-size: 16px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.95);
+      cursor: pointer;
+    }
+
+    .progress-track {
+      width: 92%;
+      height: 11px;
+      background: rgba(9, 14, 28, 0.95);
+      border-radius: 999px;
+      border: 1.2px solid rgba(255,255,255,0.45);
+      padding: 1.5px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+    }
+    #elim-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #fde047, #facc15, #f97316);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+    #elim-counter-label {
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: -2px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    }
+
+    /* Flag Carousel Row with < and > arrows */
+    .carousel-row {
+      width: 96%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .arrow-btn {
+      background: none;
+      border: none;
+      color: #facc15;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 0 4px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    #elim-strip {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      min-height: 25px;
+      padding: 1px 0;
+      scroll-behavior: smooth;
+    }
+    #elim-strip::-webkit-scrollbar { display: none; }
+
+    /* Gold Border Pills */
+    .gold-pill {
+      background: linear-gradient(180deg, rgba(14, 18, 30, 0.96) 0%, rgba(5, 8, 16, 0.99) 100%);
+      border: 2px solid #eab308;
+      border-radius: 999px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.9), 0 0 12px rgba(234, 179, 8, 0.3);
+    }
+    #main-elim-banner {
+      width: 92%;
+      min-height: 38px;
+      padding: 4px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    #elim-banner-flag {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+    #elim-banner-text {
+      color: #ef4444;
+      font-weight: 900;
+      font-size: 14.5px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+    }
+
+    #like-cta-banner {
+      width: 92%;
+      min-height: 34px;
+      padding: 4px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    #like-cta-banner:active { transform: scale(0.97); }
+    .like-text {
+      color: #ffffff;
+      font-weight: 900;
+      font-style: italic;
+      font-size: 12px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+    }
+
+    @keyframes popBanner {
+      0% { transform: scale(0.88); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .animate-pop {
+      animation: popBanner 0.35s ease-out;
+    }
+
+    /* ================= MODALS (SETTINGS & ELIMINATED LIST) ================= */
+    .modal-backdrop {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      background: rgba(2, 6, 23, 0.92);
+      backdrop-filter: blur(8px);
+      flex-direction: column;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .settings-card {
+      background: #0f172a;
+      border: 2px solid #eab308;
+      border-radius: 18px;
+      padding: 14px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+      margin: auto 0;
+    }
+    .setting-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .setting-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: #facc15;
+      text-transform: uppercase;
+    }
+    .gender-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      background: #1e293b;
+      color: #fff;
+      font-weight: 900;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .gender-btn.active {
+      background: linear-gradient(90deg, #db2777, #9333ea);
+      border-color: #fff;
+    }
+    .upload-label {
+      display: block;
+      width: 100%;
+      padding: 9px 10px;
+      background: linear-gradient(90deg, #059669, #10b981);
+      color: #fff;
+      font-weight: 900;
+      font-size: 11px;
+      text-align: center;
+      border-radius: 10px;
+      border: 1.5px solid #a7f3d0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body onclick="unlockAudioOnFirstInteraction()" ontouchstart="unlockAudioOnFirstInteraction()">
+
+  <div id="phone-wrapper">
+    <div class="stadium-bg"></div>
+    <div class="stadium-lights"></div>
+    <div class="turf-floor"></div>
+
+    <!-- Pre-created Audio Elements for Custom BGM and Cloud TTS Fallback -->
+    <audio id="custom-bgm-player" loop preload="auto"></audio>
+    <audio id="tts-cloud-player" preload="auto"></audio>
+
+    <!-- ================= TOP BAR ================= -->
+    <div class="top-bar">
+      <div class="header-row">
+        <!-- Settings Button (Left) -->
+        <button class="circle-icon-btn" onclick="openSettingsModal(true)" title="Settings">⚙️</button>
+
+        <!-- Center Title -->
+        <div class="title-text">Flags War <span>Arena</span></div>
+
+        <!-- LIVE + Viewer Counter -->
+        <div class="live-viewer-group">
+          <div class="live-pill">
+            <span class="dot-pulse"></span>
+            <span>LIVE</span>
+          </div>
+          <div class="viewer-text">
+            <span>👁</span>
+            <span id="viewer-num">4,721</span>
+          </div>
+        </div>
+
+        <!-- Eliminated History Button (Right) -->
+        <button class="circle-icon-btn" onclick="toggleElimModal(true)" title="Eliminated Countries List">👥</button>
+      </div>
+
+      <!-- Countries & Remaining Stat Boxes -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <span style="font-size:21px;">🌐</span>
+          <div style="text-align:center;">
+            <div class="stat-label">Countries</div>
+            <div id="stat-total" class="stat-num">64</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <span style="font-size:21px;">🎯</span>
+          <div style="text-align:center;">
+            <div class="stat-label">Remaining</div>
+            <div id="stat-remaining" class="stat-num">64</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cycle 1 • Live -->
+      <div class="cycle-pill">
+        <span id="cycle-text">Cycle 1</span>
+        <span class="dot-pulse" style="background:#ef4444;"></span>
+        <span>Live</span>
+      </div>
+
+      <!-- Where Are You From? -->
+      <div class="question-heading">
+        <div class="line1">Where Are</div>
+        <div class="line2">You From?</div>
+        <div class="red-swoosh"></div>
+      </div>
+    </div>
+
+    <!-- ================= CENTER CIRCULAR ARENA (ENLARGED) ================= -->
+    <div class="arena-section">
+      <div id="arena-box" onclick="boostRandomBall()">
+        <canvas id="arena-canvas"></canvas>
+        <div class="arena-live-tag">LIVE</div>
+      </div>
+    </div>
+
+    <!-- ================= BOTTOM UI SECTION ================= -->
+    <div class="bottom-bar">
+      <div class="elim-title" onclick="toggleElimModal(true)">All Eliminated</div>
+
+      <div class="progress-track">
+        <div id="elim-progress-bar"></div>
+      </div>
+      <div id="elim-counter-label">0 / 64 Eliminated</div>
+
+      <!-- Horizontal Flag Carousel -->
+      <div class="carousel-row">
+        <button class="arrow-btn" onclick="scrollCarousel(-120)">❮</button>
+        <div id="elim-strip"></div>
+        <button class="arrow-btn" onclick="scrollCarousel(120)">❯</button>
+      </div>
+
+      <!-- Main Live Elimination Gold Pill -->
+      <div id="main-elim-banner" class="gold-pill" onclick="toggleElimModal(true)">
+        <img id="elim-banner-flag" src="https://flagcdn.com/w80/ir.png" alt="flag" />
+        <span id="elim-banner-text">ELIMINATED IRAN</span>
+      </div>
+
+      <!-- Bottom Like Call-To-Action Gold Pill -->
+      <div id="like-cta-banner" class="gold-pill" onclick="boostRandomBall()">
+        <span style="font-size:15px;">👍</span>
+        <span class="like-text">Like If You See Your Country Flag</span>
+      </div>
+    </div>
+
+    <!-- ================= ⚙️ SETTINGS MODAL (VOICE & CUSTOM MUSIC) ================= -->
+    <div id="settings-modal" class="modal-backdrop">
+      <div class="settings-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:8px;">
+          <h2 style="font-size:15px;font-weight:900;color:#fff;">⚙️ ARENA SETTINGS</h2>
+          <button onclick="openSettingsModal(false)" style="width:28px;height:28px;border-radius:50%;background:#e11d48;color:#fff;border:none;font-weight:900;cursor:pointer;">✕</button>
+        </div>
+
+        <!-- 1. AI VOICE ANNOUNCER SETTINGS -->
+        <div class="setting-box">
+          <div class="setting-title">🎙️ 1. AI Elimination Voice (Ladki / Ladka)</div>
+          <div style="display:flex;gap:8px;">
+            <button id="gender-female-btn" class="gender-btn active" onclick="setVoiceGender('female')">
+              👩 Female (लड़की)
+            </button>
+            <button id="gender-male-btn" class="gender-btn" onclick="setVoiceGender('male')">
+              👨 Male (लड़का)
+            </button>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+            <span style="font-size:12px;font-weight:800;">AI Voice Announcement</span>
+            <button id="modal-voice-toggle" onclick="toggleVoiceOnOff()" style="padding:5px 14px;border-radius:999px;background:#10b981;color:#fff;font-weight:900;font-size:11px;border:none;cursor:pointer;">
+              ON
+            </button>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;color:#cbd5e1;">Voice Volume: <b id="voice-vol-text">100%</b></span>
+            <input type="range" min="10" max="100" value="100" oninput="changeVoiceVolume(this.value)" style="width:130px;accent-color:#ec4899;" />
+          </div>
+
+          <button onclick="testCurrentVoice()" style="padding:8px;border-radius:10px;background:#db2777;color:#fff;font-weight:900;font-size:11px;border:1px solid #fff;cursor:pointer;">
+            🔊 Test Voice ("America Out! Iran Out!")
+          </button>
+        </div>
+
+        <!-- 2. CUSTOM BACKGROUND MUSIC UPLOAD & CONTROLS -->
+        <div class="setting-box">
+          <div class="setting-title">🎵 2. Background Music (Apna Song Dalein)</div>
+          <label class="upload-label">
+            📂 Phone Se Apna Music Chunein (MP3 / Audio)
+            <input type="file" accept="audio/*" onchange="handleCustomMusicUpload(event)" style="display:none;" />
+          </label>
+          <div id="custom-music-status" style="font-size:10.5px;color:#a7f3d0;font-weight:700;text-align:center;">
+            Default: Soulful Background Music (40% Volume)
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+            <span style="font-size:12px;font-weight:800;">Background Music</span>
+            <button id="modal-music-toggle" onclick="toggleMusicOnOff()" style="padding:5px 14px;border-radius:999px;background:#10b981;color:#fff;font-weight:900;font-size:11px;border:none;cursor:pointer;">
+              ON
+            </button>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;color:#cbd5e1;">Music Volume: <b id="music-vol-text">40%</b></span>
+            <input type="range" min="0" max="100" value="40" oninput="changeMusicVolume(this.value)" style="width:130px;accent-color:#10b981;" />
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="resetArenaRound();openSettingsModal(false);" style="flex:1;padding:10px;border-radius:999px;background:#3b82f6;color:#fff;font-weight:900;font-size:12px;border:none;cursor:pointer;">
+            🔄 Restart Match
+          </button>
+          <button onclick="openSettingsModal(false)" style="flex:1;padding:10px;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#ec4899);color:#fff;font-weight:900;font-size:12px;border:none;cursor:pointer;">
+            ✅ Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 📋 ELIMINATED COUNTRIES LIST MODAL ================= -->
+    <div id="eliminated-modal" class="modal-backdrop">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:10px;">
+        <h2 style="color:#fff;font-size:15px;font-weight:900;">📋 ELIMINATED COUNTRIES</h2>
+        <button onclick="toggleElimModal(false)" style="width:30px;height:30px;border-radius:50%;background:#e11d48;color:#fff;border:none;font-weight:900;cursor:pointer;">✕</button>
+      </div>
+      <div id="eliminated-list-container" style="flex:1;overflow-y:auto;margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+
+  <script>
+    /**************************************************************
+     * 1. 64 COUNTRIES DATABASE
+     **************************************************************/
+    const ALL_COUNTRIES = [
+      { code: 'ir', name: 'Iran' }, { code: 'nz', name: 'New Zealand' }, { code: 'in', name: 'India' },
+      { code: 'us', name: 'America' }, { code: 'mx', name: 'Mexico' }, { code: 'br', name: 'Brazil' },
+      { code: 'ar', name: 'Argentina' }, { code: 'pt', name: 'Portugal' }, { code: 'gb', name: 'UK' },
+      { code: 'fr', name: 'France' }, { code: 'de', name: 'Germany' }, { code: 'jp', name: 'Japan' },
+      { code: 'kr', name: 'South Korea' }, { code: 'cn', name: 'China' }, { code: 'ru', name: 'Russia' },
+      { code: 'ca', name: 'Canada' }, { code: 'au', name: 'Australia' }, { code: 'it', name: 'Italy' },
+      { code: 'es', name: 'Spain' }, { code: 'tr', name: 'Turkey' }, { code: 'sa', name: 'Saudi Arabia' },
+      { code: 'ae', name: 'UAE' }, { code: 'pk', name: 'Pakistan' }, { code: 'bd', name: 'Bangladesh' },
+      { code: 'id', name: 'Indonesia' }, { code: 'my', name: 'Malaysia' }, { code: 'ph', name: 'Philippines' },
+      { code: 'vn', name: 'Vietnam' }, { code: 'th', name: 'Thailand' }, { code: 'eg', name: 'Egypt' },
+      { code: 'za', name: 'South Africa' }, { code: 'ng', name: 'Nigeria' }, { code: 'ma', name: 'Morocco' },
+      { code: 'se', name: 'Sweden' }, { code: 'no', name: 'Norway' }, { code: 'pl', name: 'Poland' },
+      { code: 'ua', name: 'Ukraine' }, { code: 'nl', name: 'Netherlands' }, { code: 'ch', name: 'Switzerland' },
+      { code: 'gr', name: 'Greece' }, { code: 'hr', name: 'Croatia' }, { code: 'qa', name: 'Qatar' },
+      { code: 'np', name: 'Nepal' }, { code: 'lk', name: 'Sri Lanka' }, { code: 'co', name: 'Colombia' },
+      { code: 'cl', name: 'Chile' }, { code: 'pe', name: 'Peru' }, { code: 'ie', name: 'Ireland' },
+      { code: 'sg', name: 'Singapore' }, { code: 'af', name: 'Afghanistan' }, { code: 'kz', name: 'Kazakhstan' },
+      { code: 'uz', name: 'Uzbekistan' }, { code: 'dz', name: 'Algeria' }, { code: 'ke', name: 'Kenya' },
+      { code: 'gh', name: 'Ghana' }, { code: 'et', name: 'Ethiopia' }, { code: 'fi', name: 'Finland' },
+      { code: 'dk', name: 'Denmark' }, { code: 'be', name: 'Belgium' }, { code: 'at', name: 'Austria' },
+      { code: 'rs', name: 'Serbia' }, { code: 'ro', name: 'Romania' }, { code: 'hu', name: 'Hungary' },
+      { code: 'il', name: 'Israel' }
+    ];
+
+    const flagCache = {};
+    function getFlag(code) {
+      if (!flagCache[code]) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = 'https://flagcdn.com/w160/' + code.toLowerCase() + '.png';
+        flagCache[code] = img;
+      }
+      return flagCache[code];
+    }
+
+    /**************************************************************
+     * 2. BULLETPROOF VOICE ENGINE (ANDROID CHROME + WEBVIEW + DESKTOP)
+     **************************************************************/
+    let audioUnlocked = false;
+    let voiceEnabled = true;
+    let voiceGender = 'female'; // 'female' or 'male'
+    let voiceVolume = 1.0;
+
+    let musicEnabled = true;
+    let musicVolume = 0.40;
+    let usingCustomMusic = false;
+
+    let audioCtx = null;
+    let musicGain = null;
+    let musicTimer = null;
+
+    // Keep global reference to utterances so Android Chrome garbage collector never kills speech mid-sentence
+    window._activeUtterances = [];
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    function unlockAudioOnFirstInteraction() {
+      initMusicSystem();
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+
+      // Unlock HTML5 Audio element for Cloud TTS fallback
+      try {
+        const ttsPlayer = document.getElementById('tts-cloud-player');
+        if (ttsPlayer) {
+          ttsPlayer.volume = 0.01;
+          ttsPlayer.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+          ttsPlayer.play().then(() => {
+            ttsPlayer.pause();
+            ttsPlayer.volume = voiceVolume;
+          }).catch(() => {});
+        }
+      } catch (e) {}
+
+      // Unlock Web Speech API with a silent warm-up utterance
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const warm = new SpeechSynthesisUtterance('');
+          warm.volume = 0;
+          window.speechSynthesis.speak(warm);
+          window.speechSynthesis.resume();
+        }
+      } catch (e) {}
+    }
+
+    function speakCloudFallback(text) {
+      try {
+        const ttsPlayer = document.getElementById('tts-cloud-player') || new Audio();
+        ttsPlayer.volume = Math.min(1, Math.max(0.1, voiceVolume));
+        const encoded = encodeURIComponent(text);
+
+        // StreamElements (Joanna for Female, Brian for Male) + Google TTS Backup
+        const voiceId = voiceGender === 'female' ? 'Joanna' : 'Brian';
+        const urls = [
+          'https://api.streamelements.com/kappa/v2/speech?voice=' + voiceId + '&text=' + encoded,
+          'https://translate.googleapis.com/translate_tts?client=tw-ob&ie=UTF-8&tl=en&q=' + encoded
+        ];
+
+        let idx = 0;
+        const tryNext = () => {
+          if (idx >= urls.length) return;
+          ttsPlayer.src = urls[idx++];
+          ttsPlayer.onerror = tryNext;
+          ttsPlayer.play().catch(tryNext);
+        };
+        tryNext();
+      } catch (e) {}
+    }
+
+    function announceEliminationVoice(text) {
+      if (!voiceEnabled) return;
+
+      // Subtle crystal chime before announcement
+      if (audioCtx && audioCtx.state === 'running') {
+        try {
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+          g.gain.setValueAtTime(0.12 * voiceVolume, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+          osc.connect(g);
+          g.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } catch (e) {}
+      }
+
+      if (!('speechSynthesis' in window)) {
+        speakCloudFallback(text);
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.resume();
+
+        const u = new SpeechSynthesisUtterance(text);
+        window._activeUtterances.push(u);
+
+        const voices = window.speechSynthesis.getVoices() || [];
+        const engVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+
+        if (voiceGender === 'female') {
+          const fem = engVoices.find(v => /female|zira|samantha|aria|jenny|victoria|karen|veena|tessa|google uk english female|google us english/i.test(v.name));
+          if (fem) u.voice = fem;
+          u.pitch = 1.3;
+          u.rate = 1.05;
+        } else {
+          const mal = engVoices.find(v => /male|david|mark|daniel|george|guy|james|rishi|google uk english male/i.test(v.name));
+          if (mal) u.voice = mal;
+          u.pitch = 0.8;
+          u.rate = 1.0;
+        }
+
+        u.lang = 'en-US';
+        u.volume = voiceVolume;
+
+        let speechStarted = false;
+        u.onstart = () => {
+          speechStarted = true;
+        };
+        u.onend = () => {
+          const idx = window._activeUtterances.indexOf(u);
+          if (idx !== -1) window._activeUtterances.splice(idx, 1);
+        };
+        u.onerror = () => {
+          if (!speechStarted) speakCloudFallback(text);
+        };
+
+        window.speechSynthesis.speak(u);
+        window.speechSynthesis.resume();
+
+        // Watchdog: If Android WebView has empty voices or fails to start within 260ms, use Cloud TTS
+        setTimeout(() => {
+          if (!speechStarted && !window.speechSynthesis.speaking) {
+            speakCloudFallback(text);
+          }
+        }, 260);
+      } catch (err) {
+        speakCloudFallback(text);
+      }
+    }
+
+    function testCurrentVoice() {
+      unlockAudioOnFirstInteraction();
+      voiceEnabled = true;
+      updateSettingsUI();
+      announceEliminationVoice('America out! Iran out!');
+    }
+
+    function setVoiceGender(gender) {
+      unlockAudioOnFirstInteraction();
+      voiceGender = gender;
+      updateSettingsUI();
+      announceEliminationVoice(gender === 'female' ? 'Female voice selected!' : 'Male voice selected!');
+    }
+
+    function toggleVoiceOnOff() {
+      unlockAudioOnFirstInteraction();
+      voiceEnabled = !voiceEnabled;
+      if (!voiceEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      updateSettingsUI();
+      if (voiceEnabled) announceEliminationVoice('Voice activated!');
+    }
+
+    function changeVoiceVolume(val) {
+      voiceVolume = parseInt(val, 10) / 100;
+      document.getElementById('voice-vol-text').textContent = val + '%';
+    }
+
+    /**************************************************************
+     * 3. BACKGROUND MUSIC: CUSTOM MP3 UPLOAD + 40% SOULFUL BGM
+     **************************************************************/
+    function initMusicSystem() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioCtx) audioCtx = new AudioContextClass();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (musicTimer) return;
+
+      musicGain = audioCtx.createGain();
+      musicGain.gain.setValueAtTime(musicEnabled && !usingCustomMusic ? musicVolume : 0.0001, audioCtx.currentTime);
+      musicGain.connect(audioCtx.destination);
+
+      const melody = [
+        440.00, 523.25, 659.25, 587.33, 523.25, 440.00, 392.00, 440.00,
+        349.23, 440.00, 523.25, 659.25, 587.33, 523.25, 440.00, 523.25,
+        523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 392.00
+      ];
+      let step = 0;
+
+      musicTimer = setInterval(() => {
+        if (!musicEnabled || usingCustomMusic || !audioCtx || audioCtx.state !== 'running') return;
+        try {
+          const now = audioCtx.currentTime;
+          const freq = melody[step % melody.length];
+
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          g.gain.setValueAtTime(0.001, now);
+          g.gain.linearRampToValueAtTime(0.22, now + 0.06);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+          osc.connect(g);
+          g.connect(musicGain);
+          osc.start(now);
+          osc.stop(now + 0.72);
+
+          if (step % 4 === 0) {
+            const pad = audioCtx.createOscillator();
+            const pg = audioCtx.createGain();
+            pad.type = 'sine';
+            pad.frequency.setValueAtTime(freq * 0.5, now);
+            pg.gain.setValueAtTime(0.001, now);
+            pg.gain.linearRampToValueAtTime(0.15, now + 0.18);
+            pg.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+            pad.connect(pg);
+            pg.connect(musicGain);
+            pad.start(now);
+            pad.stop(now + 1.4);
+          }
+          step++;
+        } catch (err) {}
+      }, 380);
+    }
+
+    function handleCustomMusicUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      unlockAudioOnFirstInteraction();
+      const player = document.getElementById('custom-bgm-player');
+      player.src = URL.createObjectURL(file);
+      player.volume = musicVolume;
+      usingCustomMusic = true;
+      musicEnabled = true;
+
+      if (musicGain && audioCtx) {
+        musicGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
+      }
+
+      player.play().catch(() => {});
+      document.getElementById('custom-music-status').textContent = '🎶 Playing: ' + file.name;
+      updateSettingsUI();
+    }
+
+    function toggleMusicOnOff() {
+      unlockAudioOnFirstInteraction();
+      musicEnabled = !musicEnabled;
+      const player = document.getElementById('custom-bgm-player');
+
+      if (usingCustomMusic && player) {
+        if (musicEnabled) player.play().catch(() => {});
+        else player.pause();
+      } else if (musicGain && audioCtx) {
+        musicGain.gain.setTargetAtTime(musicEnabled ? musicVolume : 0.0001, audioCtx.currentTime, 0.1);
+      }
+      updateSettingsUI();
+    }
+
+    function changeMusicVolume(val) {
+      musicVolume = parseInt(val, 10) / 100;
+      document.getElementById('music-vol-text').textContent = val + '%';
+      const player = document.getElementById('custom-bgm-player');
+      if (usingCustomMusic && player) {
+        player.volume = musicVolume;
+      } else if (musicGain && audioCtx && musicEnabled) {
+        musicGain.gain.setTargetAtTime(musicVolume, audioCtx.currentTime, 0.1);
+      }
+    }
+
+    function updateSettingsUI() {
+      const femBtn = document.getElementById('gender-female-btn');
+      const malBtn = document.getElementById('gender-male-btn');
+      if (femBtn && malBtn) {
+        femBtn.className = 'gender-btn' + (voiceGender === 'female' ? ' active' : '');
+        malBtn.className = 'gender-btn' + (voiceGender === 'male' ? ' active' : '');
+      }
+
+      const modVoice = document.getElementById('modal-voice-toggle');
+      if (modVoice) {
+        modVoice.textContent = voiceEnabled ? 'ON' : 'OFF';
+        modVoice.style.background = voiceEnabled ? '#10b981' : '#64748b';
+      }
+
+      const modMusic = document.getElementById('modal-music-toggle');
+      if (modMusic) {
+        modMusic.textContent = musicEnabled ? 'ON' : 'OFF';
+        modMusic.style.background = musicEnabled ? '#10b981' : '#64748b';
+      }
+    }
+
+    function openSettingsModal(show) {
+      unlockAudioOnFirstInteraction();
+      document.getElementById('settings-modal').style.display = show ? 'flex' : 'none';
+    }
+    function toggleElimModal(show) {
+      unlockAudioOnFirstInteraction();
+      document.getElementById('eliminated-modal').style.display = show ? 'flex' : 'none';
+    }
+    function scrollCarousel(delta) {
+      const strip = document.getElementById('elim-strip');
+      if (strip) strip.scrollBy({ left: delta, behavior: 'smooth' });
+    }
+
+    /**************************************************************
+     * 4. BIGGER ARENA + SLOW SMOOTH BALL MOTION + CONTINUOUS ELIMINATION
+     **************************************************************/
+    const canvas = document.getElementById('arena-canvas');
+    const ctx = canvas.getContext('2d');
+    let balls = [];
+    let vortexBalls = [];
+    let spawnQueue = [];
+    let eliminated = [];
+    let outerAngle = 0;
+    let pinkAngle = 0;
+    let spawnTick = 0;
+    let elimTick = 0;
+    let cycleCount = 1;
+
+    function resizeCanvas() {
+      const box = document.getElementById('arena-box');
+      if (!box) return;
+      const rect = box.getBoundingClientRect();
+      const size = Math.max(240, rect.width);
+      canvas.width = size * 2;
+      canvas.height = size * 2;
+      ctx.setTransform(2, 0, 0, 2, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function resetArenaRound() {
+      resizeCanvas();
+      balls = [];
+      vortexBalls = [];
+      eliminated = [];
+      spawnTick = 0;
+      elimTick = -1.0;
+      spawnQueue = [...ALL_COUNTRIES].sort(() => Math.random() - 0.5);
+      spawnQueue.forEach(c => getFlag(c.code));
+
+      document.getElementById('cycle-text').textContent = 'Cycle ' + cycleCount;
+      document.getElementById('elim-banner-flag').style.display = 'none';
+      document.getElementById('elim-banner-text').textContent = 'ARENA BATTLE STARTING...';
+      updateEliminatedUI();
+    }
+
+    function boostRandomBall() {
+      unlockAudioOnFirstInteraction();
+      if (balls.length === 0) return;
+      for (let k = 0; k < Math.min(4, balls.length); k++) {
+        const b = balls[Math.floor(Math.random() * balls.length)];
+        b.vx *= 1.25;
+        b.vy *= 1.25;
+      }
+    }
+
+    function updateEliminatedUI() {
+      const elimCount = eliminated.length;
+      const rem = Math.max(0, 64 - elimCount);
+      document.getElementById('stat-remaining').textContent = rem;
+      document.getElementById('elim-counter-label').textContent = elimCount + ' / 64 Eliminated';
+      document.getElementById('elim-progress-bar').style.width = ((elimCount / 64) * 100) + '%';
+
+      const strip = document.getElementById('elim-strip');
+      strip.innerHTML = eliminated.slice().reverse().map(e =>
+        `<img src="https://flagcdn.com/w80/${e.code}.png" title="${e.name}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex-shrink:0;" />`
+      ).join('');
+
+      const list = document.getElementById('eliminated-list-container');
+      list.innerHTML = eliminated.slice().reverse().map(e => `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#0f172a;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="color:#facc15;font-weight:900;font-size:12px;">#${e.order}</span>
+            <img src="https://flagcdn.com/w80/${e.code}.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid #fff;" />
+            <span style="color:#fff;font-weight:800;font-size:13px;">${e.name}</span>
+          </div>
+          <span style="color:#ef4444;font-size:10px;font-weight:900;">ELIMINATED</span>
+        </div>
+      `).join('');
+    }
+
+    let lastTime = performance.now();
+    function gameLoop(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.04);
+      lastTime = now;
+
+      const w = canvas.width / 2;
+      const cx = w / 2;
+      const cy = w / 2;
+      // Enlarged outer radius to fill the bigger 96% arena container edge-to-edge
+      const outerR = w * 0.478;
+      const innerR = w * 0.145;
+
+      // Smooth, slow ring rotation
+      outerAngle += 0.45 * dt;
+      pinkAngle -= 1.35 * dt;
+
+      // 1. Spawn balls one by one into the circle with slow, smooth velocities
+      if (spawnQueue.length > 0) {
+        spawnTick += dt;
+        if (spawnTick >= 0.10) {
+          spawnTick = 0;
+          const c = spawnQueue.shift();
+          const ang = Math.random() * Math.PI * 2;
+          const r = w * 0.044;
+          const spawnDist = innerR + r + 14 + Math.random() * (outerR - innerR - r * 2 - 24);
+          const moveAng = Math.random() * Math.PI * 2;
+          const speed = 0.95 + Math.random() * 0.55;
+
+          balls.push({
+            code: c.code,
+            name: c.name,
+            r: r,
+            x: cx + Math.cos(ang) * spawnDist,
+            y: cy + Math.sin(ang) * spawnDist,
+            vx: Math.cos(moveAng) * speed,
+            vy: Math.sin(moveAng) * speed,
+            rot: 0,
+            rotSpd: (Math.random() - 0.5) * 0.035
+          });
+        }
+      }
+
+      // 2. Continuous Smooth Vortex Elimination every 2.2 seconds
+      if (balls.length > 1) {
+        elimTick += dt;
+        if (elimTick >= 2.2 && vortexBalls.length === 0) {
+          elimTick = 0;
+          let bestIdx = 0;
+          let bestDist = 99999;
+          for (let i = 0; i < balls.length; i++) {
+            const d = Math.hypot(balls[i].x - cx, balls[i].y - cy);
+            if (d < bestDist) {
+              bestDist = d;
+              bestIdx = i;
+            }
+          }
+          const victim = balls.splice(bestIdx, 1)[0];
+          vortexBalls.push({
+            ...victim,
+            startDist: Math.hypot(victim.x - cx, victim.y - cy),
+            angle: Math.atan2(victim.y - cy, victim.x - cx),
+            prog: 0
+          });
+        }
+      }
+
+      // 3. Move Balls & Enforce Slow, Smooth Speeds
+      for (let i = 0; i < balls.length; i++) {
+        const b = balls[i];
+        const dx = b.x - cx;
+        const dy = b.y - cy;
+        const d = Math.hypot(dx, dy) || 1;
+
+        // Gentle orbital swirl so balls slowly revolve around the circle and collide smoothly
+        b.vx += (-dy / d) * 0.38 * dt;
+        b.vy += (dx / d) * 0.38 * dt;
+
+        const spd = Math.hypot(b.vx, b.vy) || 1;
+        if (spd > 1.65) {
+          b.vx = (b.vx / spd) * 1.65;
+          b.vy = (b.vy / spd) * 1.65;
+        } else if (spd < 0.85) {
+          b.vx = (b.vx / spd) * 0.85;
+          b.vy = (b.vy / spd) * 0.85;
+        }
+
+        b.x += b.vx;
+        b.y += b.vy;
+        b.rot += b.rotSpd;
+
+        const ndx = b.x - cx;
+        const ndy = b.y - cy;
+        const nd = Math.hypot(ndx, ndy) || 1;
+
+        // Bounce off outer circle wall
+        if (nd > outerR - b.r) {
+          const nx = ndx / nd, ny = ndy / nd;
+          b.x = cx + nx * (outerR - b.r);
+          b.y = cy + ny * (outerR - b.r);
+          const dot = b.vx * nx + b.vy * ny;
+          if (dot > 0) {
+            b.vx -= 2.0 * dot * nx;
+            b.vy -= 2.0 * dot * ny;
+          }
+        }
+        // Bounce off inner rotating pink circle
+        if (nd < innerR + b.r) {
+          const nx = ndx / nd, ny = ndy / nd;
+          b.x = cx + nx * (innerR + b.r);
+          b.y = cy + ny * (innerR + b.r);
+          const dot = b.vx * nx + b.vy * ny;
+          if (dot < 0) {
+            b.vx -= 2.0 * dot * nx;
+            b.vy -= 2.0 * dot * ny;
+          }
+        }
+      }
+
+      // 4. Smooth Elastic Ball-to-Ball Collisions
+      for (let pass = 0; pass < 2; pass++) {
+        for (let i = 0; i < balls.length; i++) {
+          for (let j = i + 1; j < balls.length; j++) {
+            const b1 = balls[i], b2 = balls[j];
+            const dx = b2.x - b1.x;
+            const dy = b2.y - b1.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = b1.r + b2.r;
+
+            if (dist > 0 && dist < minDist) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              const overlap = (minDist - dist) * 0.52;
+
+              b1.x -= nx * overlap;
+              b1.y -= ny * overlap;
+              b2.x += nx * overlap;
+              b2.y += ny * overlap;
+
+              const rvx = b1.vx - b2.vx;
+              const rvy = b1.vy - b2.vy;
+              const velAlongNormal = rvx * nx + rvy * ny;
+
+              if (velAlongNormal > 0) {
+                const restitution = 1.0;
+                const impulse = velAlongNormal * restitution;
+                b1.vx -= impulse * nx;
+                b1.vy -= impulse * ny;
+                b2.vx += impulse * nx;
+                b2.vy += impulse * ny;
+
+                b1.rotSpd = (Math.random() - 0.5) * 0.04;
+                b2.rotSpd = (Math.random() - 0.5) * 0.04;
+              }
+            }
+          }
+        }
+      }
+
+      // 5. Slow 2.0-Second Vortex Elimination into Pink Ring
+      for (let i = vortexBalls.length - 1; i >= 0; i--) {
+        const vb = vortexBalls[i];
+        vb.prog += dt / 2.0;
+        vb.angle += 4.2 * dt;
+        vb.rot += 0.08;
+        const curD = vb.startDist * Math.max(0, 1 - vb.prog);
+        vb.x = cx + Math.cos(vb.angle) * curD;
+        vb.y = cy + Math.sin(vb.angle) * curD;
+
+        if (vb.prog >= 1) {
+          vortexBalls.splice(i, 1);
+          const orderNum = eliminated.length + 1;
+          eliminated.push({ order: orderNum, code: vb.code, name: vb.name });
+
+          const flagEl = document.getElementById('elim-banner-flag');
+          flagEl.src = 'https://flagcdn.com/w80/' + vb.code + '.png';
+          flagEl.style.display = 'block';
+
+          const bannerEl = document.getElementById('main-elim-banner');
+          document.getElementById('elim-banner-text').textContent = 'ELIMINATED ' + vb.name.toUpperCase();
+          bannerEl.classList.remove('animate-pop');
+          void bannerEl.offsetWidth;
+          bannerEl.classList.add('animate-pop');
+
+          // Speak "Out" for every country!
+          const spoken = vb.name + ' out!';
+          announceEliminationVoice(spoken);
+
+          updateEliminatedUI();
+
+          if (balls.length === 1 && spawnQueue.length === 0) {
+            const win = balls[0];
+            document.getElementById('elim-banner-flag').src = 'https://flagcdn.com/w80/' + win.code + '.png';
+            document.getElementById('elim-banner-text').textContent = '🏆 WINNER: ' + win.name.toUpperCase();
+            announceEliminationVoice('We have a winner! ' + win.name + ' wins the arena!');
+            setTimeout(() => {
+              cycleCount++;
+              resetArenaRound();
+            }, 4500);
+          }
+        }
+      }
+
+      // 6. Render Circular Arena
+      ctx.clearRect(0, 0, w, w);
+
+      // Pitch Black Interior Circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      ctx.fillStyle = '#03050c';
+      ctx.fill();
+
+      // Rotating Pink-Orange-Silver Outer Border Ring (Matching Screenshot)
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(outerAngle);
+      const rimGrad = ctx.createLinearGradient(-outerR, -outerR, outerR, outerR);
+      rimGrad.addColorStop(0, '#ff1f8f');
+      rimGrad.addColorStop(0.35, '#e2e8f0');
+      rimGrad.addColorStop(0.7, '#ff7b00');
+      rimGrad.addColorStop(1, '#ff1f8f');
+      ctx.beginPath();
+      ctx.arc(0, 0, outerR + 3, 0, Math.PI * 2);
+      ctx.lineWidth = 7.5;
+      ctx.strokeStyle = rimGrad;
+      ctx.shadowColor = '#ff1f8f';
+      ctx.shadowBlur = 14;
+      ctx.stroke();
+      ctx.restore();
+
+      // Smoothly Rotating Neon Pink Inner Circle
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(pinkAngle);
+      const pinkGrad = ctx.createLinearGradient(-innerR, -innerR, innerR, innerR);
+      pinkGrad.addColorStop(0, '#ff2a85');
+      pinkGrad.addColorStop(0.5, '#ff9ec7');
+      pinkGrad.addColorStop(1, '#d60059');
+
+      ctx.beginPath();
+      ctx.arc(0, 0, innerR, 0, Math.PI * 2);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = pinkGrad;
+      ctx.shadowColor = '#ff2a85';
+      ctx.shadowBlur = 18;
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw 3D Glossy Flag Balls
+      function drawFlagMarble(b, scale, isVortex) {
+        const rad = b.r * scale;
+        if (rad <= 1) return;
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.beginPath();
+        ctx.arc(0, 0, rad, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.rotate(b.rot || 0);
+        const img = getFlag(b.code);
+        if (img && img.complete && img.naturalWidth > 0) {
+          ctx.drawImage(img, -rad * 1.35, -rad * 1.35, rad * 2.7, rad * 2.7);
+        } else {
+          ctx.fillStyle = '#2563eb';
+          ctx.fillRect(-rad, -rad, rad * 2, rad * 2);
+        }
+        ctx.restore();
+
+        // 3D Sphere Shading
+        const g = ctx.createRadialGradient(b.x - rad * 0.32, b.y - rad * 0.32, rad * 0.08, b.x, b.y, rad);
+        g.addColorStop(0, 'rgba(255,255,255,0.52)');
+        g.addColorStop(0.35, 'rgba(255,255,255,0.08)');
+        g.addColorStop(1, 'rgba(0,0,0,0.62)');
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, rad, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        ctx.lineWidth = isVortex ? 2.2 : 1.1;
+        ctx.strokeStyle = isVortex ? '#ff2a85' : 'rgba(255,255,255,0.8)';
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < balls.length; i++) {
+        drawFlagMarble(balls[i], 1, false);
+      }
+      for (let i = 0; i < vortexBalls.length; i++) {
+        const vb = vortexBalls[i];
+        drawFlagMarble(vb, Math.max(0.15, 1 - vb.prog * 0.85), true);
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Fluctuate live viewer count naturally
+    setInterval(() => {
+      const v = 4710 + Math.floor(Math.random() * 140);
+      const el = document.getElementById('viewer-num');
+      if (el) el.textContent = v.toLocaleString();
+    }, 3500);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetArenaRound();
+      updateSettingsUI();
+      requestAnimationFrame(gameLoop);
+    });
+  </script>
+</body>
+</html>
