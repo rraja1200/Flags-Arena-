@@ -1,0 +1,7 @@
+
+{
+  "appId": "com.raja1200.flagsarena",
+  "appName": "Flags Arena",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
